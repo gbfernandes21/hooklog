@@ -1,0 +1,96 @@
+name: hooklog
+
+services:
+  monitoramento-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: monitoramento
+      POSTGRES_USER: usuario_monitoramento
+      POSTGRES_PASSWORD: ${SENHA_BANCO_MONITORAMENTO:?defina SENHA_BANCO_MONITORAMENTO no arquivo .env}
+    volumes:
+      - dados_monitoramento:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuario_monitoramento -d monitoramento"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  transportadora-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: transportadora
+      POSTGRES_USER: usuario_transportadora
+      POSTGRES_PASSWORD: ${SENHA_BANCO_TRANSPORTADORA:?defina SENHA_BANCO_TRANSPORTADORA no arquivo .env}
+    volumes:
+      - dados_transportadora:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuario_transportadora -d transportadora"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  monitoramento:
+    build:
+      context: ./monitoramento
+    environment:
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?defina ADMIN_EMAIL no arquivo .env}
+      ADMIN_SENHA: ${ADMIN_SENHA:?defina ADMIN_SENHA no arquivo .env}
+      URL_BANCO: postgresql+asyncpg://usuario_monitoramento:${SENHA_BANCO_MONITORAMENTO:?defina SENHA_BANCO_MONITORAMENTO no arquivo .env}@monitoramento-db:5432/monitoramento
+      CAMINHO_RAIZ: /api
+      SEGREDO_JWT: ${SEGREDO_JWT_MONITORAMENTO:?defina SEGREDO_JWT_MONITORAMENTO no arquivo .env}
+      MINUTOS_EXPIRACAO_TOKEN: ${MINUTOS_EXPIRACAO_TOKEN:-60}
+      SEGREDO_WEBHOOK: ${SEGREDO_WEBHOOK:?defina SEGREDO_WEBHOOK no arquivo .env}
+      TOLERANCIA_TIMESTAMP_WEBHOOK_SEGUNDOS: ${TOLERANCIA_TIMESTAMP_WEBHOOK_SEGUNDOS:-300}
+      URL_TRANSPORTADORA: http://transportadora:8001
+      CHAVE_API_TRANSPORTADORA: ${CHAVE_API_SERVICO:?defina CHAVE_API_SERVICO no arquivo .env}
+      TIMEOUT_TRANSPORTADORA_SEGUNDOS: ${TIMEOUT_TRANSPORTADORA_SEGUNDOS:-3}
+      URL_PUBLICA_WEBHOOK: http://monitoramento:8000/webhooks/transportadora
+      INTERVALO_ROTINA_REGISTRO_SEGUNDOS: ${INTERVALO_ROTINA_REGISTRO_SEGUNDOS:-5}
+      MAX_TENTATIVAS_REGISTRO: ${MAX_TENTATIVAS_REGISTRO:-8}
+      BASE_BACKOFF_REGISTRO_SEGUNDOS: ${BASE_BACKOFF_REGISTRO_SEGUNDOS:-5}
+      TETO_BACKOFF_REGISTRO_SEGUNDOS: ${TETO_BACKOFF_REGISTRO_SEGUNDOS:-60}
+      CONCORRENCIA_MAXIMA_REGISTRO: ${CONCORRENCIA_MAXIMA_REGISTRO:-5}
+      TAMANHO_POOL_BANCO: ${TAMANHO_POOL_BANCO:-10}
+    depends_on:
+      monitoramento-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  transportadora:
+    build:
+      context: ./transportadora
+    environment:
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?defina ADMIN_EMAIL no arquivo .env}
+      ADMIN_SENHA: ${ADMIN_SENHA:?defina ADMIN_SENHA no arquivo .env}
+      URL_BANCO: postgresql+asyncpg://usuario_transportadora:${SENHA_BANCO_TRANSPORTADORA:?defina SENHA_BANCO_TRANSPORTADORA no arquivo .env}@transportadora-db:5432/transportadora
+      CAMINHO_RAIZ: /transportadora
+      SEGREDO_JWT: ${SEGREDO_JWT_TRANSPORTADORA:?defina SEGREDO_JWT_TRANSPORTADORA no arquivo .env}
+      MINUTOS_EXPIRACAO_TOKEN: ${MINUTOS_EXPIRACAO_TOKEN:-60}
+      CHAVE_API_SERVICO: ${CHAVE_API_SERVICO:?defina CHAVE_API_SERVICO no arquivo .env}
+      SEGREDO_WEBHOOK: ${SEGREDO_WEBHOOK:?defina SEGREDO_WEBHOOK no arquivo .env}
+      MAX_TENTATIVAS_WEBHOOK: ${MAX_TENTATIVAS_WEBHOOK:-5}
+      BASE_BACKOFF_WEBHOOK_SEGUNDOS: ${BASE_BACKOFF_WEBHOOK_SEGUNDOS:-1}
+      INTERVALO_ROTINA_WEBHOOK_SEGUNDOS: ${INTERVALO_ROTINA_WEBHOOK_SEGUNDOS:-1}
+      TIMEOUT_ENVIO_WEBHOOK_SEGUNDOS: ${TIMEOUT_ENVIO_WEBHOOK_SEGUNDOS:-5}
+      CONCORRENCIA_MAXIMA_WEBHOOK: ${CONCORRENCIA_MAXIMA_WEBHOOK:-5}
+      TAMANHO_POOL_BANCO: ${TAMANHO_POOL_BANCO:-10}
+    depends_on:
+      transportadora-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - monitoramento
+      - transportadora
+    restart: unless-stopped
+
+volumes:
+  dados_monitoramento:
+  dados_transportadora:

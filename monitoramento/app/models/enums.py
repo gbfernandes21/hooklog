@@ -1,0 +1,16 @@
+from enum import Enum
+
+
+class Papel(str, Enum):
+    USER = "USER"
+    ADMIN = "ADMIN"
+
+
+class StatusEncomenda(str, Enum):
+    REGISTRO_PENDENTE = "REGISTRO_PENDENTE"
+    FALHA_NO_REGISTRO = "FALHA_NO_REGISTRO"
+    AGUARDANDO_ENVIO = "AGUARDANDO_ENVIO"
+    POSTADO = "POSTADO"
+    EM_TRANSITO = "EM_TRANSITO"
+    SAIU_PARA_ENTREGA = "SAIU_PARA_ENTREGA"
+    ENTREGUE = "ENTREGUE"

@@ -1,0 +1,16 @@
+services:
+  monitoramento-db:
+    ports:
+      - "5433:5432"
+
+  transportadora-db:
+    ports:
+      - "5434:5432"
+
+  monitoramento:
+    ports:
+      - "8000:8000"
+
+  transportadora:
+    ports:
+      - "8001:8001"
