@@ -7,11 +7,15 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.api.autenticacao import roteador as roteador_autenticacao
 from app.core.banco_dados import obter_motor
+from app.core.erros import ErroDeDominio, manipulador_erro_dominio
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="HookLog Monitoramento")
+app.include_router(roteador_autenticacao)
+app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)
 
 
 @app.get("/health")

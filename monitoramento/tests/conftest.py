@@ -21,7 +21,7 @@ URL_BANCO_TESTE = os.environ.get(
 os.environ["ADMIN_EMAIL"] = "admin@hooklog.test"
 os.environ["ADMIN_SENHA"] = "senha-admin-123"
 os.environ["URL_BANCO"] = URL_BANCO_TESTE
-os.environ["SEGREDO_JWT"] = "segredo-jwt-teste"
+os.environ["SEGREDO_JWT"] = "segredo-jwt-teste-com-pelo-menos-32-bytes"
 os.environ["SEGREDO_WEBHOOK"] = "segredo-webhook-teste"
 os.environ["CHAVE_API_TRANSPORTADORA"] = "chave-api-teste"
 
