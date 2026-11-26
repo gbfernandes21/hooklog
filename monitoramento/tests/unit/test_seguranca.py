@@ -128,9 +128,7 @@ def test_token_sem_papel_levanta_erro_de_dominio() -> None:
 
 
 def test_token_com_outra_chave_levanta_erro_de_dominio() -> None:
-    token = _token_com_payload(
-        _payload_valido(), chave="outra-chave-qualquer-com-mais-de-32-bytes"
-    )
+    token = _token_com_payload(_payload_valido(), chave="outra-chave-qualquer-com-mais-de-32-bytes")
 
     with pytest.raises(ErroDeDominio) as excinfo:
         decodificar_token_acesso(token)

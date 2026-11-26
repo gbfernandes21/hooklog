@@ -22,6 +22,7 @@ from app.models.enums import StatusEncomenda
 
 if TYPE_CHECKING:
     from app.models.historico_status import HistoricoStatus
+    from app.models.usuario import Usuario
 
 _VALORES_STATUS = ", ".join(f"'{status.value}'" for status in StatusEncomenda)
 
@@ -38,6 +39,7 @@ class Encomenda(Base):
     usuario_id: Mapped[int] = mapped_column(
         ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False
     )
+    usuario: Mapped[Usuario] = relationship(back_populates="encomendas")
     codigo_rastreio: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
     descricao: Mapped[str] = mapped_column(String(200), nullable=False)
     vendedor: Mapped[str] = mapped_column(String(120), nullable=False)

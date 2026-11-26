@@ -7,7 +7,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.api.admin import roteador as roteador_admin
 from app.api.autenticacao import roteador as roteador_autenticacao
+from app.api.encomendas import roteador as roteador_encomendas
 from app.core.banco_dados import obter_motor
 from app.core.erros import ErroDeDominio, manipulador_erro_dominio
 
@@ -15,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="HookLog Monitoramento")
 app.include_router(roteador_autenticacao)
+app.include_router(roteador_encomendas)
+app.include_router(roteador_admin)
 app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)
 
 
