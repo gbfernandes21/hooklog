@@ -1,0 +1,113 @@
+/* HookLog - paleta verde-petróleo (sobrescritas do Bootstrap) */
+
+:root {
+  --bs-primary: #0F766E;
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-primary-bg-subtle: #EAF3DE;
+  --bs-link-color: #0F766E;
+  --bs-body-bg: #F3F8F7;
+  --bs-body-color: #2C2C2A;
+
+  --btn-primary-bg: #0F766E;
+  --btn-primary-border: #0F766E;
+  --btn-primary-hover: #134E4A;
+  --btn-primary-hover-bg: #134E4A;
+  --btn-primary-hover-border: #134E4A;
+  --btn-primary-disabled-bg: #0F766E;
+  --btn-primary-disabled-border: #0F766E;
+
+  --nav-link-hover-color: #134E4A;
+  --navbar-dark-color: rgba(255,255,255,0.95);
+  --navbar-dark-hover-color: #fff;
+
+  --table-hover-bg: #F3F8F7;
+  --alert-success-bg: #EAF3DE;
+  --alert-success-border: #27500A;
+  --alert-success-color: #27500A;
+  --alert-danger-bg: #FCEBEB;
+  --alert-danger-border: #791F1F;
+  --alert-danger-color: #791F1F;
+
+  --badge-em-texto-bg: #FAEEDA;
+  --badge-em-texto-color: #633806;
+  --badge-a-caminho-bg: #E6F1FB;
+  --badge-a-caminho-color: #0C447C;
+  --badge-entregue-bg: #EAF3DE;
+  --badge-entregue-color: #27500A;
+}
+
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg) !important;
+  border-color: var(--btn-primary-border) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover-bg) !important;
+  border-color: var(--btn-primary-hover-border) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--navbar-dark-color);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: var(--navbar-dark-hover-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover-bg);
+}
+
+.badge-em-texto {
+  background-color: var(--badge-em-texto-bg);
+  color: var(--badge-em-texto-color);
+}
+
+.badge-a-caminho {
+  background-color: var(--badge-a-caminho-bg);
+  color: var(--badge-a-caminho-color);
+}
+
+.badge-entregue {
+  background-color: var(--badge-entregue-bg);
+  color: var(--badge-entregue-color);
+}
+
+.logo-vertical {
+  width: 100px;
+  height: auto;
+}
+
+.login-card {
+  max-width: 520px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.alerta-erro {
+  background-color: var(--alert-danger-bg);
+  border-color: var(--alert-danger-border);
+  color: var(--alert-danger-color);
+}
+
+.alerta-sucesso {
+  background-color: var(--alert-success-bg);
+  border-color: var(--alert-success-border);
+  color: var(--alert-success-color);
+}
+
+.sem-dados {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}

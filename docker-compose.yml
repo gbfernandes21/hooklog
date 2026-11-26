@@ -83,7 +83,8 @@ services:
 
   gateway:
     build:
-      context: ./gateway
+      context: ..
+      dockerfile: gateway/Dockerfile
     ports:
       - "8080:80"
     depends_on:
