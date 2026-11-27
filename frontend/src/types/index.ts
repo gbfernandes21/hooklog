@@ -105,4 +105,13 @@ export const GRUPO_POR_STATUS: Record<string, string> = {
   ENTREGUE: GRUPO_ENTREGUES,
 };
 
+export const CAMINHO_STATUS: string[] = [
+  'REGISTRO_PENDENTE',
+  'AGUARDANDO_ENVIO',
+  'POSTADO',
+  'EM_TRANSITO',
+  'SAIU_PARA_ENTREGA',
+  'ENTREGUE',
+];
+
 export const CHAVE_TOKEN = 'hooklog_token';

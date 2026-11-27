@@ -1,11 +1,20 @@
 import { useParams } from 'react-router-dom';
-import { Alert, Button, Card, Container, ListGroup, Spinner, Table } from 'react-bootstrap';
+import { Alert, Button, Card, Container, Spinner, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAutenticacao } from '../auth/ContextoAutenticacao';
 import { useObterEncomendaAdmin, useObterEncomendaUsuario } from '../hooks/useEncomendasAdmin';
-import { Encomenda, HistoricoStatus } from '../types';
+import {
+  Encomenda,
+  HistoricoStatus,
+  CAMINHO_STATUS,
+  STATUS_ROTULOS,
+} from '../types';
 import { SeloStatus } from '../components/SeloStatus';
-import { formatarDataHoraBrasilia } from '../utils/datas';
+import {
+  formatarDataBrasilia,
+  formatarDataHoraBrasilia,
+  formatarHoraBrasilia,
+} from '../utils/datas';
 import { extrairErro } from '../utils/erros';
 
 export default function PaginaDetalheEncomenda(): JSX.Element {
@@ -146,33 +155,69 @@ export default function PaginaDetalheEncomenda(): JSX.Element {
       </Card>
 
       <div className="mt-4">
-        <h2 className="h5 mb-3">Histórico de status</h2>
-        <ListGroup>
-              {encomenda.historico.map((item: HistoricoStatus, indice: number) => (
-            <ListGroup.Item key={indice} className="historico-item">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <span className="badge me-2">
-                    <SeloStatus status={item.status_novo} />
-                  </span>{' '}
-                  {item.status_anterior && (
-                    <span className="text-muted">de {item.status_anterior}</span>
-                  )}
-                  <span className="ms-2 fw-bold">{item.status_novo}</span>
-                </div>
-                <span className="text-muted small">
-                  {formatarDataHoraBrasilia(item.ocorrido_em)}
+        <h2 className="h5 mb-3">Acompanhamento da entrega</h2>
+        {encomenda.historico.length === 0 ? (
+          <p className="text-muted">Nenhuma mudança de status registrada.</p>
+        ) : (
+          <div className="barra-status">
+            {montarPassos(encomenda.historico).map((passo) => (
+              <div key={passo.status} className="passo-status">
+                <span
+                  className={`bolinha-status ${passo.ativo ? 'ativo' : 'pendente'}`}
+                  aria-label={passo.rotulo}
+                />
+                <span
+                  className={`rotulo-passo ${
+                    passo.ativo ? 'ativo' : 'pendente'
+                  }`}
+                >
+                  {passo.rotulo}
                 </span>
+                {passo.ativo && passo.ocorridoEm && (
+                  <>
+                    <span className="data-passo ativo">
+                      {formatarDataBrasilia(passo.ocorridoEm)}
+                    </span>{' '}
+                    <span className="hora-passo ativo">
+                      {formatarHoraBrasilia(passo.ocorridoEm)}
+                    </span>
+                  </>
+                )}
               </div>
-            </ListGroup.Item>
-          ))}
-          {encomenda.historico.length === 0 && (
-            <ListGroup.Item className="text-muted">
-              Nenhuma mudança de status registrada.
-            </ListGroup.Item>
-          )}
-        </ListGroup>
+            ))}
+          </div>
+        )}
       </div>
     </Container>
   );
+}
+
+function montarPassos(
+  historico: HistoricoStatus[]
+): {
+  status: string;
+  rotulo: string;
+  ativo: boolean;
+  ocorridoEm: string | undefined;
+}[] {
+  const ocorrenciasPorStatus = new Map<string, string>();
+  historico.forEach((item) => {
+    ocorrenciasPorStatus.set(item.status_novo, item.ocorrido_em);
+  });
+
+  const indiceUltimoAlcancado = CAMINHO_STATUS.reduce((maior, status, indice) => {
+    return ocorrenciasPorStatus.has(status) ? indice : maior;
+  }, -1);
+
+  const quantidade = Math.min(indiceUltimoAlcancado + 2, CAMINHO_STATUS.length);
+
+  return CAMINHO_STATUS.slice(0, quantidade).map((status) => {
+    const ativo = ocorrenciasPorStatus.has(status);
+    return {
+      status,
+      rotulo: STATUS_ROTULOS[status] ?? status,
+      ativo,
+      ocorridoEm: ativo ? ocorrenciasPorStatus.get(status) : undefined,
+    };
+  });
 }
