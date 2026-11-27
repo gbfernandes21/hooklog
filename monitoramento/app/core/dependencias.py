@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 
+from app.clients.cliente_transportadora import ClienteTransportadora
 from app.core.configuracao import Configuracao, obter_configuracao
 from app.core.erros import ErroDeDominio
 from app.core.seguranca import UsuarioAutenticado, decodificar_token_acesso
@@ -13,6 +14,10 @@ esquema_oauth2 = OAuth2PasswordBearer(tokenUrl="autenticacao/login", auto_error=
 
 async def obter_configuracao_atual() -> Configuracao:
     return obter_configuracao()
+
+
+async def obter_cliente_transportadora(request: Request) -> ClienteTransportadora:
+    return request.app.state.cliente_transportadora
 
 
 async def obter_usuario_atual(

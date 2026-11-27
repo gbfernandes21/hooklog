@@ -4,10 +4,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.clients.cliente_transportadora import ClienteTransportadora
 from app.core.banco_dados import obter_sessao
 from app.core.configuracao import Configuracao
 from app.core.dependencias import (
     exigir_usuario,
+    obter_cliente_transportadora,
     obter_configuracao_atual,
 )
 from app.core.erros import ErroDeDominio
@@ -30,6 +32,7 @@ async def criar_encomenda(
     usuario: Annotated[UsuarioAutenticado, Depends(exigir_usuario)],
     sessao: Annotated[AsyncSession, Depends(obter_sessao)],
     configuracao: Annotated[Configuracao, Depends(obter_configuracao_atual)],
+    cliente_transportadora: Annotated[ClienteTransportadora, Depends(obter_cliente_transportadora)],
 ) -> EncomendaLer:
     servico = ServicoEncomenda(sessao)
     agora = datetime.now(UTC)
@@ -39,6 +42,12 @@ async def criar_encomenda(
         descricao=dados.descricao,
         vendedor=dados.vendedor,
         agora=agora,
+    )
+    encomenda = await servico.registrar_na_transportadora(
+        encomenda,
+        cliente_transportadora,
+        datetime.now(UTC),
+        configuracao,
     )
     return _para_ler(encomenda)
 
@@ -98,6 +107,21 @@ async def excluir_encomenda(
 ) -> None:
     servico = ServicoEncomenda(sessao)
     await servico.excluir(usuario.id, encomenda_id)
+
+
+@roteador.post("/{encomenda_id}/registrar", response_model=EncomendaLer, status_code=202)
+async def registrar_novamente(
+    encomenda_id: Annotated[int, Path()],
+    usuario: Annotated[UsuarioAutenticado, Depends(exigir_usuario)],
+    sessao: Annotated[AsyncSession, Depends(obter_sessao)],
+) -> EncomendaLer:
+    servico = ServicoEncomenda(sessao)
+    encomenda = await servico.reiniciar_registro(
+        usuario.id,
+        encomenda_id,
+        datetime.now(UTC),
+    )
+    return _para_ler(encomenda)
 
 
 def _para_ler(encomenda) -> EncomendaLer:

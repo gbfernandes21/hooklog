@@ -25,7 +25,10 @@ os.environ["SEGREDO_JWT"] = "segredo-jwt-teste-com-pelo-menos-32-bytes"
 os.environ["SEGREDO_WEBHOOK"] = "segredo-webhook-teste"
 os.environ["CHAVE_API_TRANSPORTADORA"] = "chave-api-teste"
 
+from app.clients.cliente_transportadora import ClienteTransportadora
 from app.core.banco_dados import obter_motor, obter_sessao
+from app.core.configuracao import obter_configuracao
+from app.core.dependencias import obter_cliente_transportadora
 from app.main import app
 from app.models import Base
 
@@ -81,11 +84,24 @@ async def cliente(
         async with fabrica_sessao_teste() as sessao:
             yield sessao
 
+    async def responder_conexao_recusada(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("Conexão recusada", request=request)
+
+    cliente_http_transportadora = httpx.AsyncClient(
+        transport=httpx.MockTransport(responder_conexao_recusada)
+    )
+    cliente_transportadora_padrao = ClienteTransportadora(
+        cliente_http_transportadora, obter_configuracao()
+    )
+
     app.dependency_overrides[obter_motor] = lambda: motor_teste
     app.dependency_overrides[obter_sessao] = obter_sessao_teste
+    app.dependency_overrides[obter_cliente_transportadora] = lambda: cliente_transportadora_padrao
 
     transporte = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transporte, base_url="http://teste") as http:
-        yield http
-
-    app.dependency_overrides.clear()
+    try:
+        async with httpx.AsyncClient(transport=transporte, base_url="http://teste") as http:
+            yield http
+    finally:
+        await cliente_http_transportadora.aclose()
+        app.dependency_overrides.clear()

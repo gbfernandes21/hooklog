@@ -26,6 +26,38 @@ class RepositorioEncomenda:
         )
         return resultado.scalar_one_or_none()
 
+    async def listar_pendentes_para_registro(
+        self,
+        agora: datetime,
+        limite: int = 20,
+    ) -> list[Encomenda]:
+        resultado = await self._sessao.execute(
+            select(Encomenda)
+            .where(
+                Encomenda.status == StatusEncomenda.REGISTRO_PENDENTE.value,
+                Encomenda.proxima_tentativa_em <= agora,
+            )
+            .order_by(Encomenda.proxima_tentativa_em)
+            .limit(limite)
+        )
+        return list(resultado.scalars().all())
+
+    async def obter_pendente_para_registro(
+        self,
+        encomenda_id: int,
+        agora: datetime,
+    ) -> Encomenda | None:
+        resultado = await self._sessao.execute(
+            select(Encomenda)
+            .where(
+                Encomenda.id == encomenda_id,
+                Encomenda.status == StatusEncomenda.REGISTRO_PENDENTE.value,
+                Encomenda.proxima_tentativa_em <= agora,
+            )
+            .with_for_update()
+        )
+        return resultado.scalar_one_or_none()
+
     async def listar_por_usuario(
         self,
         usuario_id: int,
@@ -78,6 +110,7 @@ class RepositorioEncomenda:
             select(Encomenda)
             .where(Encomenda.id == encomenda_id)
             .options(selectinload(Encomenda.historico))
+            .execution_options(populate_existing=True)
         )
         return resultado.scalar_one_or_none()
 
