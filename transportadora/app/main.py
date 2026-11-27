@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.api.autenticacao import roteador as roteador_autenticacao
+from app.api.remessas import roteador as roteador_remessas
 from app.core.banco_dados import obter_motor
 from app.core.erros import ErroDeDominio, manipulador_erro_dominio
 
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="HookLog Transportadora")
 app.include_router(roteador_autenticacao)
+app.include_router(roteador_remessas)
 app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)
 
 

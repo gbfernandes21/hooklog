@@ -55,3 +55,23 @@ async def exigir_chave_servico(
         raise ErroDeDominio("Permissão insuficiente", "PERMISSAO_INSUFICIENTE", 403)
 
     raise ErroDeDominio("Chave de API inválida", "CHAVE_API_INVALIDA", 401)
+
+
+async def exigir_admin_ou_chave_servico(
+    token: Annotated[str | None, Depends(esquema_oauth2)],
+    chave_api: Annotated[str | None, Depends(esquema_chave_api)],
+    configuracao: Annotated[Configuracao, Depends(obter_configuracao_atual)],
+) -> None:
+    if chave_api is not None and _chave_api_confere(chave_api, configuracao):
+        return
+
+    if token is not None:
+        payload = decodificar_token_acesso(token)
+        if payload["papel"] != Papel.ADMIN.value:
+            raise ErroDeDominio("Permissão insuficiente", "PERMISSAO_INSUFICIENTE", 403)
+        return
+
+    if chave_api is not None:
+        raise ErroDeDominio("Chave de API inválida", "CHAVE_API_INVALIDA", 401)
+
+    raise ErroDeDominio("Token inválido", "TOKEN_INVALIDO", 401)
