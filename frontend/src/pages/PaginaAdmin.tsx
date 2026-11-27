@@ -93,12 +93,12 @@ export default function PaginaAdmin(): JSX.Element {
                 <td>{encomenda.grupo}</td>
                 <td>{encomenda.usuario_email}</td>
                 <td className="text-center">
-                  <Link
-                    to={`/encomendas/${encomenda.id}`}
-                    className="btn btn-outline-primary btn-sm"
-                  >
-                    Ver detalhe
-                  </Link>
+                    <Link
+                     to={`/admin/encomendas/${encomenda.id}`}
+                     className="btn btn-outline-primary btn-sm"
+                   >
+                     Ver detalhe
+                   </Link>
                 </td>
               </tr>
             ))}

@@ -37,6 +37,7 @@ class ServicoWebhook:
         encomenda.status = evento.status
         if evento.status == StatusEncomenda.ENTREGUE.value:
             encomenda.entregue_em = evento.entregue_em or agora
+            encomenda.recebido_por = evento.recebido_por
         encomenda.atualizado_em = agora
 
         self._sessao.add(EventoProcessado(id_evento=evento.id_evento, recebido_em=agora))

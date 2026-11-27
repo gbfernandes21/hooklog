@@ -1,4 +1,4 @@
-import { Navigate, Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { ProvedorAutenticacao, useAutenticacao } from './auth/ContextoAutenticacao';
 import { RotaProtegida } from './auth/RotaProtegida';
 import { RotaAdmin } from './auth/RotaAdmin';
@@ -11,6 +11,7 @@ import PaginaDetalheEncomenda from './pages/PaginaDetalheEncomenda';
 
 function RedirectOnLoad(): React.ReactNode {
   const { usuario, carregando, ehAdmin, ehUsuario } = useAutenticacao();
+  const { pathname } = useLocation();
 
   if (carregando) {
     return null;
@@ -20,8 +21,16 @@ function RedirectOnLoad(): React.ReactNode {
     return null;
   }
 
+  if (ehAdmin && (pathname === '/admin' || pathname.startsWith('/admin/'))) {
+    return null;
+  }
+
   if (ehAdmin) {
     return <Navigate to="/admin" replace />;
+  }
+
+  if (ehUsuario && (pathname === '/encomendas' || pathname.startsWith('/encomendas/'))) {
+    return null;
   }
 
   if (ehUsuario) {
@@ -62,6 +71,16 @@ export default function App(): JSX.Element {
             <RotaProtegida>
               <RotaAdmin>
                 <PaginaAdmin />
+              </RotaAdmin>
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/admin/encomendas/:id"
+          element={
+            <RotaProtegida>
+              <RotaAdmin>
+                <PaginaDetalheEncomenda />
               </RotaAdmin>
             </RotaProtegida>
           }

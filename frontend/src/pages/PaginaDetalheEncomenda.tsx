@@ -126,6 +126,12 @@ export default function PaginaDetalheEncomenda(): JSX.Element {
                   <td>{formatarDataHoraBrasilia(encomenda.entregue_em)}</td>
                 </tr>
               )}
+              {encomenda.recebido_por && (
+                <tr>
+                  <td className="fw-bold">Recebido por</td>
+                  <td>{encomenda.recebido_por}</td>
+                </tr>
+              )}
               {mostrarUsuario && (
                 <tr>
                   <td className="fw-bold">Usuário</td>

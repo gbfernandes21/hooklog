@@ -69,6 +69,7 @@ class EncomendaLer(BaseModel):
     status: StatusEncomenda
     grupo: str
     entregue_em: datetime | None = None
+    recebido_por: str | None = None
     criado_em: datetime
     atualizado_em: datetime
     historico: list[HistoricoStatusLer] = []

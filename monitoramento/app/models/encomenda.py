@@ -52,6 +52,7 @@ class Encomenda(Base):
     )
     ultimo_erro_registro: Mapped[str | None] = mapped_column(Text, nullable=True)
     entregue_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    recebido_por: Mapped[str | None] = mapped_column(String(120), nullable=True)
     criado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Alert, Button, Container, Modal, Spinner, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { AbasEncomendas } from '../components/AbasEncomendas';
 import { ModalEncomenda } from '../components/ModalEncomenda';
 import { SeloStatus } from '../components/SeloStatus';
@@ -123,6 +124,11 @@ export default function PaginaEncomendas(): JSX.Element {
             Tentar registrar novamente
           </Button>
         )}
+        <Link to={`/encomendas/${encomenda.id}`}>
+          <Button variant="outline-secondary" size="sm">
+            Ver detalhe
+          </Button>
+        </Link>
         <Button variant="outline-secondary" size="sm" onClick={() => abrirEdicao(encomenda)}>
           Editar
         </Button>

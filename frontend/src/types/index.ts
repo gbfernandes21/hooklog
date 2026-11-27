@@ -38,6 +38,7 @@ export interface Encomenda {
   status: string;
   grupo: string;
   entregue_em: string | null;
+  recebido_por: string | null;
   criado_em: string;
   atualizado_em: string;
   historico: HistoricoStatus[];
