@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.api.admin import roteador as roteador_admin
 from app.api.autenticacao import roteador as roteador_autenticacao
 from app.api.encomendas import roteador as roteador_encomendas
+from app.api.webhooks import roteador as roteador_webhooks
 from app.clients.cliente_transportadora import ClienteTransportadora
 from app.core.banco_dados import FabricaSessao, obter_motor
 from app.core.configuracao import obter_configuracao
@@ -51,6 +52,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="HookLog Monitoramento", lifespan=lifespan)
 app.include_router(roteador_autenticacao)
 app.include_router(roteador_encomendas)
+app.include_router(roteador_webhooks)
 app.include_router(roteador_admin)
 app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)
 

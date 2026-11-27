@@ -26,6 +26,14 @@ class RepositorioEncomenda:
         )
         return resultado.scalar_one_or_none()
 
+    async def obter_por_codigo_rastreio_para_atualizar(
+        self, codigo_rastreio: str
+    ) -> Encomenda | None:
+        resultado = await self._sessao.execute(
+            select(Encomenda).where(Encomenda.codigo_rastreio == codigo_rastreio).with_for_update()
+        )
+        return resultado.scalar_one_or_none()
+
     async def listar_pendentes_para_registro(
         self,
         agora: datetime,

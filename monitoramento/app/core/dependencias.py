@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, Request
@@ -48,3 +49,7 @@ async def exigir_admin(
     if usuario.papel is not Papel.ADMIN:
         raise ErroDeDominio("Acesso negado", "ACESSO_NEGADO", 403)
     return usuario
+
+
+async def obter_relogio() -> datetime:
+    return datetime.now(UTC)
