@@ -1,11 +1,13 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager, suppress
+from pathlib import Path
 from typing import Annotated
 
 import httpx
 from fastapi import Depends, FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -19,6 +21,8 @@ from app.core.erros import ErroDeDominio, manipulador_erro_dominio
 from app.workers.despachante_webhook import laco_despachante_webhook
 
 logger = logging.getLogger(__name__)
+
+CAMINHO_STATIC = Path(__file__).resolve().parent / "static"
 
 
 @asynccontextmanager
@@ -51,6 +55,17 @@ app.include_router(roteador_autenticacao)
 app.include_router(roteador_remessas)
 app.include_router(roteador_logs_webhook)
 app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)
+app.mount("/static", StaticFiles(directory=CAMINHO_STATIC), name="static")
+
+
+@app.get("/", response_class=FileResponse)
+async def pagina_transportadora():
+    return CAMINHO_STATIC / "index.html"
+
+
+@app.get("/favicon.svg", response_class=FileResponse)
+async def favicon():
+    return CAMINHO_STATIC / "favicon.svg"
 
 
 @app.get("/health")

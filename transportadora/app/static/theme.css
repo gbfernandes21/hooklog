@@ -1,0 +1,122 @@
+/* HookLog - paleta verde-petróleo (sobrescritas do Bootstrap) */
+
+:root {
+  --bs-primary: #0F766E;
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-primary-bg-subtle: #EAF3DE;
+  --bs-link-color: #0F766E;
+  --bs-body-bg: #F3F8F7;
+  --bs-body-color: #2C2C2A;
+
+  --btn-primary-bg: #0F766E;
+  --btn-primary-border: #0F766E;
+  --btn-primary-hover: #134E4A;
+  --btn-primary-hover-bg: #134E4A;
+  --btn-primary-hover-border: #134E4A;
+  --btn-primary-disabled-bg: #0F766E;
+  --btn-primary-disabled-border: #0F766E;
+
+  --nav-link-hover-color: #134E4A;
+  --navbar-dark-color: rgba(255,255,255,0.95);
+  --navbar-dark-hover-color: #fff;
+
+  --table-hover-bg: #F3F8F7;
+  --alert-success-bg: #EAF3DE;
+  --alert-success-border: #27500A;
+  --alert-success-color: #27500A;
+  --alert-danger-bg: #FCEBEB;
+  --alert-danger-border: #791F1F;
+  --alert-danger-color: #791F1F;
+}
+
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg) !important;
+  border-color: var(--btn-primary-border) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover-bg) !important;
+  border-color: var(--btn-primary-hover-border) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--navbar-dark-color);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: var(--navbar-dark-hover-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover-bg);
+}
+
+.selo-status {
+  font-weight: 500;
+  padding: 0.4em 0.65em;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.selo-pendente {
+  background-color: #E9ECEF;
+  color: #2C2C2A;
+}
+
+.selo-enviado {
+  background-color: #EAF3DE;
+  color: #27500A;
+}
+
+.selo-falha {
+  background-color: #FCEBEB;
+  color: #791F1F;
+}
+
+.login-card {
+  max-width: 520px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.logo-vertical {
+  width: 100px;
+  height: auto;
+}
+
+.alerta-erro {
+  background-color: var(--alert-danger-bg);
+  border-color: var(--alert-danger-border);
+  color: var(--alert-danger-color);
+}
+
+.alerta-sucesso {
+  background-color: var(--alert-success-bg);
+  border-color: var(--alert-success-border);
+  color: var(--alert-success-color);
+}
+
+.sem-dados {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.codigo-rastreio {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+}
+
+.tabela-encomendas {
+  background-color: #fff;
+}

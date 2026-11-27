@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HookLog - Transportadora</title>
+<link rel="icon" href="static/favicon.svg">
+<link rel="stylesheet" href="static/bootstrap.min.css">
+<link rel="stylesheet" href="static/theme.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="static/logo-invertido.svg" alt="HookLog" width="32" height="32" class="me-2">
+      HookLog Transportadora
+    </a>
+    <div class="d-flex">
+      <button id="btnSair" class="btn btn-outline-light btn-sm ms-2 d-none">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-5" style="padding-top: 80px;">
+  <!-- Tela de login -->
+  <div id="telaLogin" class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card login-card shadow">
+        <div class="card-body text-center">
+          <img src="static/logo-vertical.svg" alt="HookLog" class="logo-vertical mb-3">
+          <h2 class="card-title mb-4">Login da transportadora</h2>
+          <div id="msgErroLogin" class="alerta-erro alert d-none"></div>
+          <form id="formLogin">
+            <div class="mb-3">
+              <label class="form-label">E-mail</label>
+              <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Senha</label>
+              <input type="password" name="senha" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+          </form>
+          <p class="mt-3 text-muted small">Somente o ADMIN acessa a tela da transportadora.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tela principal (oculta até logar) -->
+  <div id="telaPrincipal" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Remessas</h2>
+      <span id="badgeContagem" class="badge bg-primary">0</span>
+    </div>
+    <div class="card mb-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table tabela-encomendas mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Código de rastreio</th>
+                <th>Vendedor</th>
+                <th>Status</th>
+                <th class="text-center">Próxima ação</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyRemessas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Log de webhooks</h2>
+    </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table tabela-encomendas mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Tipo de evento</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Tentativas</th>
+                <th class="text-center">Último HTTP</th>
+                <th>Último erro</th>
+                <th>Criado em</th>
+                <th class="text-center">Enviado em</th>
+                <th class="text-end">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyLogs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="msgSucesso" class="alerta-sucesso alert mt-3 d-none"></div>
+    <div id="msgErro" class="alerta-erro alert mt-3 d-none"></div>
+    <p class="text-muted small mt-3">Atualização automática a cada 3 segundos.</p>
+  </div>
+
+  <!-- Modal de entrega -->
+  <div class="modal fade" id="modalEntrega" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Finalizar entrega</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="inputCodigoEntrega">
+          <div class="mb-3">
+            <label class="form-label">Quem recebeu (opcional)</label>
+            <input type="text" id="inputRecebidoPor" class="form-control" maxlength="120">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarEntrega">Entregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="static/bootstrap.bundle.min.js"></script>
+<script src="static/app.js"></script>
+</body>
+</html>
