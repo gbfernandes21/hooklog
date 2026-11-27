@@ -1,6 +1,9 @@
+import asyncio
 import logging
+from contextlib import asynccontextmanager, suppress
 from typing import Annotated
 
+import httpx
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
@@ -9,12 +12,40 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.api.autenticacao import roteador as roteador_autenticacao
 from app.api.remessas import roteador as roteador_remessas
-from app.core.banco_dados import obter_motor
+from app.core.banco_dados import FabricaSessao, obter_motor
+from app.core.configuracao import obter_configuracao
 from app.core.erros import ErroDeDominio, manipulador_erro_dominio
+from app.workers.despachante_webhook import laco_despachante_webhook
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="HookLog Transportadora")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    configuracao = obter_configuracao()
+    cliente_http = httpx.AsyncClient(timeout=configuracao.timeout_envio_webhook_segundos)
+    app.state.cliente_http = cliente_http
+
+    tarefa_despachante = asyncio.create_task(
+        laco_despachante_webhook(
+            FabricaSessao,
+            cliente_http,
+            configuracao.intervalo_rotina_webhook_segundos,
+            configuracao.concorrencia_maxima_webhook,
+            configuracao,
+        )
+    )
+
+    try:
+        yield
+    finally:
+        tarefa_despachante.cancel()
+        with suppress(asyncio.CancelledError):
+            await tarefa_despachante
+        await cliente_http.aclose()
+
+
+app = FastAPI(title="HookLog Transportadora", lifespan=lifespan)
 app.include_router(roteador_autenticacao)
 app.include_router(roteador_remessas)
 app.add_exception_handler(ErroDeDominio, manipulador_erro_dominio)

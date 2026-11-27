@@ -1,6 +1,11 @@
+from datetime import datetime
+
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, selectinload
 
 from app.models.evento_webhook import EventoWebhook
+from app.models.tentativa_webhook import TentativaWebhook
 
 
 class RepositorioEventoWebhook:
@@ -11,3 +16,90 @@ class RepositorioEventoWebhook:
         self._sessao.add(evento)
         await self._sessao.flush()
         return evento
+
+    async def listar_pendentes_elegiveis(
+        self,
+        agora: datetime,
+        limite: int = 20,
+    ) -> list[EventoWebhook]:
+        outro = aliased(EventoWebhook)
+        evento_mais_antigo = (
+            select(outro.id)
+            .where(
+                outro.remessa_id == EventoWebhook.remessa_id,
+                outro.estado == "PENDENTE",
+                outro.id < EventoWebhook.id,
+            )
+            .correlate_except(outro)
+        )
+        resultado = await self._sessao.execute(
+            select(EventoWebhook)
+            .options(selectinload(EventoWebhook.remessa))
+            .where(
+                EventoWebhook.estado == "PENDENTE",
+                EventoWebhook.proxima_tentativa_em <= agora,
+                ~evento_mais_antigo.exists(),
+            )
+            .order_by(EventoWebhook.id)
+            .limit(limite)
+        )
+        return list(resultado.scalars().all())
+
+    async def criar_tentativa(
+        self,
+        evento_webhook_id: int,
+        numero: int,
+        status_http: int | None,
+        erro: str | None,
+        duracao_ms: int,
+        tentou_em: datetime,
+    ) -> TentativaWebhook:
+        tentativa = TentativaWebhook(
+            evento_webhook_id=evento_webhook_id,
+            numero=numero,
+            status_http=status_http,
+            erro=erro,
+            duracao_ms=duracao_ms,
+            tentou_em=tentou_em,
+        )
+        self._sessao.add(tentativa)
+        await self._sessao.flush()
+        return tentativa
+
+    async def marcar_enviado(
+        self,
+        evento: EventoWebhook,
+        enviado_em: datetime,
+    ) -> None:
+        evento.estado = "ENVIADO"
+        evento.enviado_em = enviado_em
+        await self._sessao.flush()
+
+    async def marcar_falha_definitiva(
+        self,
+        evento: EventoWebhook,
+        total_tentativas: int,
+        proxima_tentativa_em: datetime,
+        ultimo_status_http: int | None,
+        ultimo_erro: str | None,
+    ) -> None:
+        evento.estado = "FALHA"
+        evento.total_tentativas = total_tentativas
+        evento.proxima_tentativa_em = proxima_tentativa_em
+        evento.ultimo_status_http = ultimo_status_http
+        evento.ultimo_erro = ultimo_erro
+        await self._sessao.flush()
+
+    async def registrar_reagendamento(
+        self,
+        evento: EventoWebhook,
+        total_tentativas: int,
+        proxima_tentativa_em: datetime,
+        ultimo_status_http: int | None,
+        ultimo_erro: str | None,
+    ) -> None:
+        evento.total_tentativas = total_tentativas
+        evento.proxima_tentativa_em = proxima_tentativa_em
+        evento.ultimo_status_http = ultimo_status_http
+        evento.ultimo_erro = ultimo_erro
+        await self._sessao.flush()
