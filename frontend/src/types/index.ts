@@ -85,13 +85,13 @@ export const STATUS_ROTULOS: Record<string, string> = {
 };
 
 export const STATUS_CSS: Record<string, string> = {
-  REGISTRO_PENDENTE: 'badge-em-texto',
-  FALHA_NO_REGISTRO: 'badge-em-texto',
-  AGUARDANDO_ENVIO: 'badge-em-texto',
-  POSTADO: 'badge-em-texto',
-  EM_TRANSITO: 'badge-a-caminho',
-  SAIU_PARA_ENTREGA: 'badge-a-caminho',
-  ENTREGUE: 'badge-entregue',
+  REGISTRO_PENDENTE: 'selo-registro-pendente',
+  FALHA_NO_REGISTRO: 'selo-falha-registro',
+  AGUARDANDO_ENVIO: 'selo-aguardando-envio',
+  POSTADO: 'selo-postado',
+  EM_TRANSITO: 'selo-em-transito',
+  SAIU_PARA_ENTREGA: 'selo-saiu-entrega',
+  ENTREGUE: 'selo-entregue',
 };
 
 export const GRUPO_POR_STATUS: Record<string, string> = {

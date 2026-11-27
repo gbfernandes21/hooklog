@@ -28,12 +28,6 @@
   --alert-danger-border: #791F1F;
   --alert-danger-color: #791F1F;
 
-  --badge-em-texto-bg: #FAEEDA;
-  --badge-em-texto-color: #633806;
-  --badge-a-caminho-bg: #E6F1FB;
-  --badge-a-caminho-color: #0C447C;
-  --badge-entregue-bg: #EAF3DE;
-  --badge-entregue-color: #27500A;
 }
 
 body {
@@ -65,19 +59,77 @@ body {
   background-color: var(--table-hover-bg);
 }
 
-.badge-em-texto {
-  background-color: var(--badge-em-texto-bg);
-  color: var(--badge-em-texto-color);
+.selo-status {
+  font-weight: 500;
+  padding: 0.4em 0.65em;
 }
 
-.badge-a-caminho {
-  background-color: var(--badge-a-caminho-bg);
-  color: var(--badge-a-caminho-color);
+.selo-registro-pendente {
+  background-color: #F1EFE8;
+  color: #444441;
 }
 
-.badge-entregue {
-  background-color: var(--badge-entregue-bg);
-  color: var(--badge-entregue-color);
+.selo-falha-registro {
+  background-color: #FCEBEB;
+  color: #791F1F;
+}
+
+.selo-aguardando-envio,
+.selo-postado {
+  background-color: #FAEEDA;
+  color: #633806;
+}
+
+.selo-em-transito,
+.selo-saiu-entrega {
+  background-color: #E6F1FB;
+  color: #0C447C;
+}
+
+.selo-entregue {
+  background-color: #EAF3DE;
+  color: #27500A;
+}
+
+.selo-padrao {
+  background-color: #E9ECEF;
+  color: #2C2C2A;
+}
+
+.abas-encomendas .nav-link {
+  color: var(--bs-body-color);
+}
+
+.abas-encomendas .nav-link.active {
+  color: #F97316;
+  border-bottom-color: #F97316;
+  font-weight: 600;
+}
+
+.contagem-aba {
+  display: inline-block;
+  min-width: 1.5rem;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background-color: #E6F1FB;
+  color: #0C447C;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.abas-encomendas .nav-link.active .contagem-aba {
+  background-color: #F97316;
+  color: #fff;
+}
+
+.codigo-rastreio {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+}
+
+.tabela-encomendas {
+  background-color: #fff;
 }
 
 .logo-vertical {
