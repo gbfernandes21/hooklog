@@ -4,7 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload
 
+from app.models.enums import EstadoEnvio
 from app.models.evento_webhook import EventoWebhook
+from app.models.remessa import Remessa
 from app.models.tentativa_webhook import TentativaWebhook
 
 
@@ -102,4 +104,51 @@ class RepositorioEventoWebhook:
         evento.proxima_tentativa_em = proxima_tentativa_em
         evento.ultimo_status_http = ultimo_status_http
         evento.ultimo_erro = ultimo_erro
+        await self._sessao.flush()
+
+    async def obter_por_id_com_tentativas(
+        self,
+        evento_id: int,
+    ) -> EventoWebhook | None:
+        resultado = await self._sessao.execute(
+            select(EventoWebhook)
+            .options(
+                selectinload(EventoWebhook.tentativas),
+                selectinload(EventoWebhook.remessa),
+            )
+            .where(EventoWebhook.id == evento_id)
+        )
+        return resultado.scalars().first()
+
+    async def listar_para_log(
+        self,
+        codigo_rastreio: str | None = None,
+        estado: str | None = None,
+    ) -> list[EventoWebhook]:
+        consulta = (
+            select(EventoWebhook)
+            .join(Remessa, Remessa.id == EventoWebhook.remessa_id)
+            .options(
+                selectinload(EventoWebhook.tentativas),
+                selectinload(EventoWebhook.remessa),
+            )
+            .order_by(EventoWebhook.id.desc())
+        )
+        if codigo_rastreio is not None:
+            consulta = consulta.where(Remessa.codigo_rastreio == codigo_rastreio)
+        if estado is not None:
+            consulta = consulta.where(EventoWebhook.estado == estado)
+        resultado = await self._sessao.execute(consulta)
+        return list(resultado.scalars().all())
+
+    async def redefinir_para_pendente(
+        self,
+        evento: EventoWebhook,
+        agora: datetime,
+    ) -> None:
+        evento.estado = EstadoEnvio.PENDENTE.value
+        evento.total_tentativas = 0
+        evento.proxima_tentativa_em = agora
+        evento.ultimo_status_http = None
+        evento.ultimo_erro = None
         await self._sessao.flush()
