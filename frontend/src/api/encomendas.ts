@@ -23,6 +23,11 @@ export async function excluirEncomenda(id: number): Promise<void> {
   await clienteApi.delete(`/encomendas/${id}`);
 }
 
+export async function obterEncomenda(id: number): Promise<Encomenda> {
+  const resposta = await clienteApi.get<Encomenda>(`/encomendas/${id}`);
+  return resposta.data;
+}
+
 export async function solicitarNovoRegistro(id: number): Promise<Encomenda> {
   const resposta = await clienteApi.post<Encomenda>(`/encomendas/${id}/registrar`);
   return resposta.data;

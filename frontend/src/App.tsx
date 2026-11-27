@@ -7,6 +7,7 @@ import { PaginaLogin } from './pages/PaginaLogin';
 import { PaginaRegistro } from './pages/PaginaRegistro';
 import PaginaEncomendas from './pages/PaginaEncomendas';
 import PaginaAdmin from './pages/PaginaAdmin';
+import PaginaDetalheEncomenda from './pages/PaginaDetalheEncomenda';
 
 function RedirectOnLoad(): React.ReactNode {
   const { usuario, carregando, ehAdmin, ehUsuario } = useAutenticacao();
@@ -44,6 +45,14 @@ export default function App(): JSX.Element {
           element={
             <RotaProtegida>
               <PaginaEncomendas />
+            </RotaProtegida>
+          }
+        />
+        <Route
+          path="/encomendas/:id"
+          element={
+            <RotaProtegida>
+              <PaginaDetalheEncomenda />
             </RotaProtegida>
           }
         />
