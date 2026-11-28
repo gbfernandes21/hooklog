@@ -142,6 +142,7 @@ def _para_ler(encomenda) -> EncomendaLer:
         status=encomenda.status,
         grupo=grupo_do_status(StatusEncomenda(encomenda.status)),
         entregue_em=encomenda.entregue_em,
+        recebido_por=encomenda.recebido_por,
         criado_em=encomenda.criado_em,
         atualizado_em=encomenda.atualizado_em,
         historico=historico,
