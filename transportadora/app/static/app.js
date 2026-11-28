@@ -7,6 +7,8 @@ const formLogin = document.getElementById("formLogin");
 const msgErroLogin = document.getElementById("msgErroLogin");
 const msgSucesso = document.getElementById("msgSucesso");
 const msgErro = document.getElementById("msgErro");
+const btnAtualizar = document.getElementById("btnAtualizar");
+const ultimaAtualizacao = document.getElementById("ultimaAtualizacao");
 
 let intervaloPolling = null;
 
@@ -17,6 +19,12 @@ function mostrarErro(elemento, texto) {
 
 function esconderErro(elemento) {
   elemento.classList.add("d-none");
+}
+
+function mostrarSucesso(texto) {
+  msgSucesso.textContent = texto;
+  msgSucesso.classList.remove("d-none");
+  setTimeout(() => esconderErro(msgSucesso), 3000);
 }
 
 function estaLogado() {
@@ -77,6 +85,16 @@ function formatarBrasilia(iso) {
   });
 }
 
+function horaAgora() {
+  return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function marcarAtualizada() {
+  if (ultimaAtualizacao) {
+    ultimaAtualizacao.textContent = `Atualizado às ${horaAgora()}`;
+  }
+}
+
 function seloParaStatus(status) {
   const classes = {
     REGISTRO_PENDENTE: "selo-pendente",
@@ -109,6 +127,10 @@ async function carregarRemessas() {
   for (const remessa of remessas) {
     const linha = document.createElement("tr");
     const proximo = remessa.proximo_status;
+    const recebidoPor = remessa.recebido_por || "-";
+    const entregueEm = remessa.entregue_em
+      ? formatarBrasilia(remessa.entregue_em)
+      : "-";
     let botoesAcao = "";
 
     if (proximo === "ENTREGUE") {
@@ -126,6 +148,8 @@ async function carregarRemessas() {
     linha.innerHTML = `
       <td><span class="codigo-rastreio">${remessa.codigo_rastreio}</span></td>
       <td>${remessa.vendedor}</td>
+      <td class="text-center">${recebidoPor}</td>
+      <td class="text-center">${entregueEm}</td>
       <td><span class="selo-status ${seloParaStatus(remessa.status)}">${remessa.status}</span></td>
       <td class="text-center">${botoesAcao}</td>
     `;
@@ -150,11 +174,14 @@ async function carregarRemessas() {
         if (!resp.ok) {
           const erro = await resp.json();
           mostrarErro(msgErro, `Erro: ${erro.detalhe || "falha ao avançar status"}`);
+          await carregarRemessas();
+          await carregarLogs();
           return;
         }
         esconderErro(msgErro);
         await carregarRemessas();
         await carregarLogs();
+        mostrarSucesso("Status atualizado.");
       } catch (erro) {
         mostrarErro(msgErro, erro.message);
       }
@@ -188,6 +215,8 @@ async function carregarRemessas() {
       if (!resp.ok) {
         const erro = await resp.json();
         mostrarErro(msgErro, `Erro: ${erro.detalhe || "falha ao entregar"}`);
+        await carregarRemessas();
+        await carregarLogs();
         return;
       }
       const modal = bootstrap.Modal.getInstance(document.getElementById("modalEntrega"));
@@ -195,6 +224,7 @@ async function carregarRemessas() {
       esconderErro(msgErro);
       await carregarRemessas();
       await carregarLogs();
+      mostrarSucesso("Entrega realizada.");
     } catch (erro) {
       mostrarErro(msgErro, erro.message);
     }
@@ -261,7 +291,7 @@ async function carregarLogs() {
           return;
         }
         esconderErro(msgErro);
-        mostrarErro(msgSucesso, "Evento reenviado com sucesso.");
+        mostrarSucesso("Evento reenviado com sucesso.");
         setTimeout(() => esconderErro(msgSucesso), 3000);
         await carregarLogs();
       } catch (erro) {
@@ -274,6 +304,7 @@ async function carregarLogs() {
 async function atualizarDados() {
   await carregarRemessas();
   await carregarLogs();
+  marcarAtualizada();
 }
 
 formLogin.addEventListener("submit", async (evento) => {
@@ -285,7 +316,11 @@ formLogin.addEventListener("submit", async (evento) => {
     await login(email, senha);
     mostrarTelaPrincipal();
     await atualizarDados();
-    intervaloPolling = setInterval(atualizarDados, 3000);
+    intervaloPolling = setInterval(() => {
+      atualizarDados().catch(() => {
+        // evita que um erro de rede derrube o polling automático
+      });
+    }, 3000);
   } catch (erro) {
     mostrarErro(msgErroLogin, erro.message);
   }
@@ -301,6 +336,20 @@ btnSair.addEventListener("click", () => {
   mostrarTelaLogin();
 });
 
+btnAtualizar.addEventListener("click", async () => {
+  btnAtualizar.disabled = true;
+  btnAtualizar.textContent = "Atualizando...";
+  try {
+    await atualizarDados();
+    mostrarSucesso("Dados atualizados.");
+  } catch (erro) {
+    mostrarErro(msgErro, erro.message);
+  } finally {
+    btnAtualizar.disabled = false;
+    btnAtualizar.textContent = "Atualizar agora";
+  }
+});
+
 // Inicializacao
 if (estaLogado()) {
   mostrarTelaPrincipal();
@@ -308,7 +357,11 @@ if (estaLogado()) {
     sessionStorage.removeItem(TOKEN_KEY);
     mostrarTelaLogin();
   });
-  intervaloPolling = setInterval(atualizarDados, 3000);
+  intervaloPolling = setInterval(() => {
+    atualizarDados().catch(() => {
+      // evita que um erro de rede derrube o polling automático
+    });
+  }, 3000);
 } else {
   mostrarTelaLogin();
 }

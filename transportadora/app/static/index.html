@@ -51,7 +51,11 @@
   <div id="telaPrincipal" class="d-none">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Remessas</h2>
-      <span id="badgeContagem" class="badge bg-primary">0</span>
+      <div class="d-flex align-items-center gap-2">
+        <span id="badgeContagem" class="badge bg-primary">0</span>
+        <button id="btnAtualizar" class="btn btn-outline-secondary btn-sm">Atualizar agora</button>
+        <span id="ultimaAtualizacao" class="text-muted small">--</span>
+      </div>
     </div>
     <div class="card mb-4">
       <div class="card-body p-0">
@@ -61,6 +65,8 @@
               <tr>
                 <th>Código de rastreio</th>
                 <th>Vendedor</th>
+                <th class="text-center">Quem recebeu</th>
+                <th class="text-center">Entregue em</th>
                 <th>Status</th>
                 <th class="text-center">Próxima ação</th>
               </tr>
