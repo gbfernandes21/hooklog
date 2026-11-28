@@ -10,6 +10,8 @@ export function useListarTodasEncomendas(
     queryKey: ['encomendasAdmin', grupo, usuarioId],
     queryFn: () => listarTodasEncomendas(grupo, usuarioId),
     enabled: true,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -18,6 +20,8 @@ export function useObterEncomendaAdmin(id: number | null) {
     queryKey: ['encomendaAdmin', id],
     queryFn: () => obterEncomendaAdmin(id!),
     enabled: id !== null && id !== undefined,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -26,5 +30,7 @@ export function useObterEncomendaUsuario(id: number | null) {
     queryKey: ['encomendaUsuario', id],
     queryFn: () => obterEncomenda(id!),
     enabled: id !== null && id !== undefined,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 }

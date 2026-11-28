@@ -192,14 +192,15 @@ export default function PaginaEncomendas(): JSX.Element {
       {!isLoading && !isError && encomendasDaAba.length > 0 && (
         <Table responsive hover className="align-middle tabela-encomendas">
           <thead>
-            <tr>
-              <th>Código</th>
-              {ehAbaEntregues ? <th>Vendedor</th> : <th>Descrição</th>}
-              {!ehAbaEntregues && <th>Vendedor</th>}
-              {ehAbaEntregues && <th>Entregue em</th>}
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
+              <tr>
+                <th>Código</th>
+                {ehAbaEntregues ? <th>Vendedor</th> : <th>Descrição</th>}
+                {!ehAbaEntregues && <th>Vendedor</th>}
+                {ehAbaEntregues && <th>Entregue em</th>}
+                {ehAbaEntregues && <th>Quem recebeu</th>}
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
           </thead>
           <tbody>
             {encomendasDaAba.map((encomenda) => (
@@ -209,6 +210,7 @@ export default function PaginaEncomendas(): JSX.Element {
                   <>
                     <td>{encomenda.vendedor}</td>
                     <td>{formatarDataHoraBrasilia(encomenda.entregue_em)}</td>
+                    <td>{encomenda.recebido_por || '-'}</td>
                   </>
                 ) : (
                   <>
