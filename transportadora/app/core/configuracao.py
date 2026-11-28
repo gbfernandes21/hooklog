@@ -38,6 +38,13 @@ class Configuracao(BaseSettings):
         return valor_limpo
 
 
+def _formatar_erros(erro: ValidationError) -> str:
+    return "\n".join(
+        f"- {'.'.join(str(parte) for parte in detalhe['loc'])}: {detalhe['msg']}"
+        for detalhe in erro.errors(include_url=False, include_context=False, include_input=False)
+    )
+
+
 @lru_cache
 def obter_configuracao() -> Configuracao:
     try:
@@ -46,5 +53,5 @@ def obter_configuracao() -> Configuracao:
         raise SystemExit(
             "Configuração inválida. Defina ADMIN_EMAIL e ADMIN_SENHA (mínimo 8 "
             "caracteres) no arquivo .env, além das demais variáveis obrigatórias.\n"
-            f"{erro}"
-        ) from erro
+            f"{_formatar_erros(erro)}"
+        ) from None
