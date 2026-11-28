@@ -164,6 +164,64 @@ async def test_200_marca_evento_enviado_com_enviado_em(
     assert evento_atualizado is not None
     assert evento_atualizado.estado == EstadoEnvio.ENVIADO.value
     assert evento_atualizado.enviado_em is not None
+    assert evento_atualizado.total_tentativas == 1
+    assert evento_atualizado.ultimo_status_http == 200
+    assert evento_atualizado.ultimo_erro is None
+
+
+async def test_200_apos_retry_atualiza_total_tentativas_e_ultimo_status_http(
+    cliente: httpx.AsyncClient,
+    fabrica_sessao_teste: async_sessionmaker[AsyncSession],
+) -> None:
+    chamadas = {"n": 0}
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        chamadas["n"] += 1
+        if chamadas["n"] == 1:
+            return httpx.Response(500)
+        return httpx.Response(200)
+
+    cliente_mock = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+    async with fabrica_sessao_teste() as sessao:
+        remessa = await _criar_remessa(sessao, "BR121212121")
+        await _criar_evento(sessao, remessa, "evt-sucesso-apos-retry")
+        await sessao.commit()
+
+    configuracao = obter_configuracao()
+    await processar_eventos_pendentes(
+        fabrica_sessao_teste,
+        cliente_mock,
+        AGORA,
+        concorrencia_maxima=5,
+        configuracao=configuracao,
+    )
+
+    evento_apos_falha = await _obter_evento(fabrica_sessao_teste, "evt-sucesso-apos-retry")
+    assert evento_apos_falha is not None
+    assert evento_apos_falha.estado == EstadoEnvio.PENDENTE.value
+    assert evento_apos_falha.total_tentativas == 1
+    assert evento_apos_falha.ultimo_status_http == 500
+
+    await processar_eventos_pendentes(
+        fabrica_sessao_teste,
+        cliente_mock,
+        evento_apos_falha.proxima_tentativa_em,
+        concorrencia_maxima=5,
+        configuracao=configuracao,
+    )
+
+    evento_atualizado = await _obter_evento(fabrica_sessao_teste, "evt-sucesso-apos-retry")
+    assert evento_atualizado is not None
+    assert evento_atualizado.estado == EstadoEnvio.ENVIADO.value
+    assert evento_atualizado.total_tentativas == 2
+    assert evento_atualizado.ultimo_status_http == 200
+    assert evento_atualizado.ultimo_erro is None
+    assert evento_atualizado.enviado_em is not None
+
+    tentativas = await _listar_tentativas_evento(fabrica_sessao_teste, "evt-sucesso-apos-retry")
+    assert [tentativa.numero for tentativa in tentativas] == [1, 2]
+    assert [tentativa.status_http for tentativa in tentativas] == [500, 200]
 
 
 async def test_corpo_enviado_é_byte_a_byte_igual_ao_guardado(

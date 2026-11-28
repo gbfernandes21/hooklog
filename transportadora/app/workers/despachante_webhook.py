@@ -37,7 +37,12 @@ async def processar_evento(
     )
 
     if resultado.enviado:
-        await repositorio.marcar_enviado(evento, agora)
+        await repositorio.marcar_enviado(
+            evento,
+            agora,
+            total_tentativas=tentativa_numero,
+            ultimo_status_http=resultado.status_http,
+        )
         logger.info(
             "Evento %s enviado com sucesso para a remessa %s",
             evento.id_evento,

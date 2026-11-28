@@ -72,9 +72,15 @@ class RepositorioEventoWebhook:
         self,
         evento: EventoWebhook,
         enviado_em: datetime,
+        total_tentativas: int,
+        ultimo_status_http: int | None,
+        ultimo_erro: str | None = None,
     ) -> None:
         evento.estado = "ENVIADO"
         evento.enviado_em = enviado_em
+        evento.total_tentativas = total_tentativas
+        evento.ultimo_status_http = ultimo_status_http
+        evento.ultimo_erro = ultimo_erro
         await self._sessao.flush()
 
     async def marcar_falha_definitiva(
